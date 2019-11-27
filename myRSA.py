@@ -36,14 +36,14 @@ class rsa():
         return True  
     def rsa_c(self):
         
-        p=int(rand.uniform(100000,1000000))
+        p=int(rand.uniform(10000000,100000000))
     
         while True:
             p+=1
             if self.is_Prime(p):
                 break
 
-        q=int(rand.uniform(100000,1000000)) 
+        q=int(rand.uniform(10000000,100000000)) 
         while True:
             q+=1
             if self.is_Prime(q):
@@ -74,20 +74,33 @@ class rsa():
         private=[n,e]
         public=[n,d]
         
+        file = open("private.txt", "w+") 
+        file.write(str(n)+" "+str(e))
+        file.close()
+
+        file = open("public.txt", "w+") 
+        file.write(str(n)+" "+str(d))
+        file.close()
+        
         return [private,public]
 
 
     def code(self,plik,priv):
 
         """algorithm with modular division"""
+        
+        filep= open(priv,"r")
+        priv= filep.read()
+        priv= priv.split(" ")
+        filep.close()
 
         file = open(plik, "r") 
         text= file.read() 
         file.close()
         back=""
         
-        c=priv[1]
-        n=priv[0]
+        c=int(priv[1])
+        n=int(priv[0])
         b=bin(c)
         b=b[::-1]    
         for x in text:
@@ -118,7 +131,12 @@ class rsa():
     def decode(self,d_file,public,to_file=""): 
 
         """algorithm with modular division"""
-
+        
+        filep= open(public,"r")
+        public= filep.read()
+        public=public.split(" ")
+        filep.close()
+        
         file = open(d_file, "r") 
         text= file.read() 
         file.close()
@@ -127,26 +145,27 @@ class rsa():
         back=text
         back=back.split(" ")
           
+        b=bin(int(public[1]))
+        b=b[::-1]
+        p1=int(public[0])
         
         translate=""
         for x in back[1:]:
-            byte = x
             
-            b=bin(public[1])
-            b=b[::-1]
+            byte = x
             m=1
             zw=[]
-            byte=int(byte)%public[0]
+            byte=int(byte)%p1
             for x in range(0,len(b)-2):
                 if b[x]=="1":
                     zw.append(int(byte))  
-                byte=(int(byte)**2)%public[0]
+                byte=(int(byte)**2)%p1
                       
                       
             for k in zw:
                 m*=k
 
-            m=(m%public[0])        
+            m=(m%p1)        
             
             m=chr(m)
             translate=translate+str(m)
@@ -165,6 +184,10 @@ class rsa():
 r=rsa()
 klucz=r.rsa_c()
 
-r.code("tocode.txt",klucz[0])
+#r.code("tocode.txt",klucz[0])
 
-r.decode("tocode.txt",klucz[1])
+#r.decode("tocode.txt",klucz[1])
+
+r.code("tocode.txt","private.txt")
+
+r.decode("tocode.txt","public.txt")
